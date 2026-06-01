@@ -1,16 +1,26 @@
 import { createSign } from "crypto";
 
-export type MetricKey = "walkinScheduled" | "admission" | "walkinTurned";
+export type MetricKey =
+  | "walkinScheduled"
+  | "admission"
+  | "walkinTurned"
+  | "admissionYesterday"
+  | "walkinTurnedYesterday";
 
-export type MetricLabel = "Walkin Scheduled" | "Admission" | "Walkin Turned";
+export type MetricLabel =
+  | "Walkin Scheduled"
+  | "Admission"
+  | "Walkin Turned"
+  | "Admission Yesterday"
+  | "Walkin Turned Yesterday";
 
 export const METRICS: Array<{ key: MetricKey; label: MetricLabel }> = [
   { key: "walkinScheduled", label: "Walkin Scheduled" },
   { key: "admission", label: "Admission" },
   { key: "walkinTurned", label: "Walkin Turned" },
+  { key: "admissionYesterday", label: "Admission Yesterday" },
+  { key: "walkinTurnedYesterday", label: "Walkin Turned Yesterday" },
 ];
-
-const ALLOWED_CAMPAIGNS = ["Inbound Campaign", "Meta Campaign", "Outbound Campaign"];
 
 export type RawLeaderboardRow = Record<string, unknown>;
 
@@ -18,9 +28,12 @@ export type AgentRecord = {
   name: string;
   emailId: string;
   campaign: string;
+  teamName: string;
   walkinScheduled: number;
   admission: number;
   walkinTurned: number;
+  admissionYesterday: number;
+  walkinTurnedYesterday: number;
   photoLink: string;
   updatedAt: string;
 };
@@ -85,6 +98,19 @@ function asNumber(value: unknown): number {
   return 0;
 }
 
+function normalizeCampaignKey(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function shouldIncludeCampaign(campaign: string): boolean {
+  const normalized = normalizeCampaignKey(campaign);
+  if (!normalized) return false;
+  if (normalized === "leave") return false;
+  if (normalized === "m1agent") return false;
+  if (normalized === "unassigned") return false;
+  return true;
+}
+
 function pickField(row: RawLeaderboardRow, keys: string[]): unknown {
   const normalized = new Map<string, unknown>();
   Object.entries(row).forEach(([key, value]) => {
@@ -103,12 +129,26 @@ function normalizeRow(row: RawLeaderboardRow): AgentRecord {
   const name = asString(pickField(row, ["name", "agent_name", "agent name"]), "Unknown");
   const emailId = asString(pickField(row, ["email id", "email_id", "email"]), "");
   const campaign = asString(pickField(row, ["campaign", "Campaign"]), "Unassigned");
+  const teamName = asString(
+    pickField(row, ["team", "team name", "team_name", "teamname", "team name "]),
+    "",
+  );
   const walkinScheduled = asNumber(
     pickField(row, ["walkin scheduled", "walkin_scheduled", "walkin"]),
   );
   const admission = asNumber(pickField(row, ["admission"]));
   const walkinTurned = asNumber(
     pickField(row, ["walkin turned", "walkin_turned", "walkin turned count"]),
+  );
+  const admissionYesterday = asNumber(
+    pickField(row, ["admission yesterday", "admission_yesterday", "admission yesterday count"]),
+  );
+  const walkinTurnedYesterday = asNumber(
+    pickField(row, [
+      "walkin turned yesterday",
+      "walkin_turned_yesterday",
+      "walkin turned yesterday count",
+    ]),
   );
   const photoLink = asString(
     pickField(row, ["photo link", "photo_link", "photo", "image", "image url"]),
@@ -123,9 +163,12 @@ function normalizeRow(row: RawLeaderboardRow): AgentRecord {
     name,
     emailId,
     campaign,
+    teamName,
     walkinScheduled,
     admission,
     walkinTurned,
+    admissionYesterday,
+    walkinTurnedYesterday,
     photoLink,
     updatedAt,
   };
@@ -423,16 +466,30 @@ function sortAgents(metric: MetricKey, agents: AgentRecord[]): RankedAgent[] {
 export async function loadMetricLeaderboard(metric: MetricKey): Promise<MetricLeaderboard> {
   const rows = await readSourceRows();
   const agents = rows.map(normalizeRow);
+  const campaignGroups = new Map<string, { campaign: string; agents: AgentRecord[] }>();
+
+  for (const agent of agents) {
+    if (!shouldIncludeCampaign(agent.campaign)) continue;
+
+    const key = normalizeCampaignKey(agent.campaign);
+    const existing = campaignGroups.get(key);
+    if (existing) {
+      existing.agents.push(agent);
+      continue;
+    }
+
+    campaignGroups.set(key, {
+      campaign: agent.campaign,
+      agents: [agent],
+    });
+  }
 
   return {
     metric,
     metricLabel: METRICS.find((entry) => entry.key === metric)?.label ?? "Walkin Scheduled",
-    campaigns: ALLOWED_CAMPAIGNS.map((campaign) => ({
-      campaign,
-      agents: sortAgents(
-        metric,
-        agents.filter((agent) => agent.campaign === campaign),
-      ),
+    campaigns: Array.from(campaignGroups.values()).map((group) => ({
+      campaign: group.campaign,
+      agents: sortAgents(metric, group.agents),
     })),
     updatedAt: new Date().toISOString(),
   };
@@ -458,6 +515,8 @@ export function metricFromLabel(label: string | null | undefined): MetricKey {
 
   if (normalized === "admission") return "admission";
   if (normalized === "walkinturned") return "walkinTurned";
+  if (normalized === "admissionyesterday") return "admissionYesterday";
+  if (normalized === "walkinturnedyesterday") return "walkinTurnedYesterday";
   return "walkinScheduled";
 }
 
