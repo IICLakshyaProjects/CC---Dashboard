@@ -455,7 +455,7 @@ function sortAgents(metric: MetricKey, agents: AgentRecord[]): RankedAgent[] {
 
       return left.name.localeCompare(right.name);
     })
-    .slice(0, 3)
+    .slice(0, 5)
     .map((agent, index) => ({
       ...agent,
       rank: index + 1,

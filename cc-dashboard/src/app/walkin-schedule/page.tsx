@@ -14,7 +14,7 @@ function formatCurrentDate(): string {
   }).format(new Date());
 }
 
-export default async function WalkinScheduledPage() {
+export default async function WalkinSchedulePage() {
   let initialData;
   let initialError: string | undefined;
 

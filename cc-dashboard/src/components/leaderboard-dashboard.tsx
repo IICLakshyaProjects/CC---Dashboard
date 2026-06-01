@@ -12,7 +12,7 @@ function getRankLabel(rank: number): string {
   if (rank === 1) return "1st";
   if (rank === 2) return "2nd";
   if (rank === 3) return "3rd";
-  return `${rank}`;
+  return `${rank}th`;
 }
 
 function RankBadge({ rank }: { rank: number }) {
@@ -28,6 +28,7 @@ type Props = {
   initialError?: string;
   rotationMetrics: MetricKey[];
   refreshIntervalMs: number;
+  campaignRotationIntervalMs?: number;
   headerRightText?: string;
   headerRightTextByMetric?: Partial<Record<MetricKey, string>>;
 };
@@ -100,7 +101,7 @@ function AgentCard({
         <div className="min-w-0 flex-1">
           <p className="truncate text-base font-semibold text-white">{agent.name}</p>
           {agent.teamName ? (
-            <p className="truncate text-[0.72rem] uppercase tracking-[0.28em] text-slate-300/70">
+            <p className="truncate text-[0.72rem] font-bold uppercase tracking-[0.28em] text-slate-300/80">
               {agent.teamName}
             </p>
           ) : null}
@@ -145,7 +146,7 @@ function CampaignPanel({
                 {topAgent.name}
               </p>
               {topAgent.teamName ? (
-                <p className="truncate text-[0.72rem] uppercase tracking-[0.28em] text-slate-200/75">
+                <p className="truncate text-[0.72rem] font-bold uppercase tracking-[0.28em] text-slate-200/85">
                   {topAgent.teamName}
                 </p>
               ) : null}
@@ -178,11 +179,13 @@ export function LeaderboardDashboard(props: Props) {
     initialError,
     rotationMetrics,
     refreshIntervalMs,
+    campaignRotationIntervalMs,
     headerRightText,
     headerRightTextByMetric,
   } = props;
   const [metric, setMetric] = useState<MetricKey>(initialData.metric);
   const [state, setState] = useState<LoadState>({ data: initialData, status: "idle" });
+  const [activeCampaignIndex, setActiveCampaignIndex] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -238,24 +241,48 @@ export function LeaderboardDashboard(props: Props) {
     };
   }, [rotationMetrics]);
 
+  useEffect(() => {
+    if (!campaignRotationIntervalMs) {
+      setActiveCampaignIndex(0);
+      return;
+    }
+
+    if (state.data.campaigns.length === 0) {
+      setActiveCampaignIndex(0);
+      return;
+    }
+
+    setActiveCampaignIndex((current) => Math.min(current, state.data.campaigns.length - 1));
+  }, [campaignRotationIntervalMs, state.data.campaigns.length]);
+
+  useEffect(() => {
+    if (!campaignRotationIntervalMs || state.data.campaigns.length <= 1) return undefined;
+
+    const campaignTimer = window.setInterval(() => {
+      setActiveCampaignIndex((current) => (current + 1) % state.data.campaigns.length);
+    }, campaignRotationIntervalMs);
+
+    return () => {
+      window.clearInterval(campaignTimer);
+    };
+  }, [campaignRotationIntervalMs, state.data.campaigns.length]);
+
   const activeLabel = getMetricLabel(metric);
   const activeHeaderRightText = headerRightTextByMetric?.[metric] ?? headerRightText;
 
-  const visibleCampaigns = state.data.campaigns.slice(0, 3);
-  const campaignGridClassName =
-    visibleCampaigns.length <= 1
-      ? "xl:grid-cols-1"
-      : visibleCampaigns.length === 2
-        ? "xl:grid-cols-2"
-        : "xl:grid-cols-3";
+  const visibleCampaigns = state.data.campaigns;
+  const activeCampaign =
+    campaignRotationIntervalMs && visibleCampaigns.length > 0
+      ? visibleCampaigns[activeCampaignIndex] ?? visibleCampaigns[0]
+      : undefined;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.24),_transparent_34%),linear-gradient(135deg,_#020617_0%,_#08111f_45%,_#030712_100%)] text-white">
       <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col px-4 py-4 sm:px-6 lg:px-8">
         <header className="mb-4 rounded-[2rem] border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Campaign leaderboard</h1>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="min-w-0 flex-1 text-center">
+              <h1 className="text-3xl font-black tracking-tight sm:text-5xl">CC Leaderboard</h1>
               <div className="mt-2">
                 <h2 className="text-2xl font-semibold tracking-wide text-amber-300 sm:text-3xl">
                   {activeLabel}
@@ -282,15 +309,32 @@ export function LeaderboardDashboard(props: Props) {
           </div>
         ) : null}
 
-        <main className={`grid flex-1 gap-4 ${campaignGridClassName}`}>
-          {visibleCampaigns.length > 0 ? (
-            visibleCampaigns.map((campaign) => (
-              <CampaignPanel key={`${state.data.metric}-${campaign.campaign}`} campaign={campaign} />
-            ))
+        <main className={campaignRotationIntervalMs ? "flex flex-1 items-stretch" : "flex flex-1 flex-col gap-4"}>
+          {campaignRotationIntervalMs ? (
+            activeCampaign ? (
+              <div className="flex w-full items-stretch">
+                <div
+                  key={`${state.data.metric}-${activeCampaign.campaign}`}
+                  className="w-full transition-all duration-700 ease-out"
+                >
+                  <CampaignPanel campaign={activeCampaign} />
+                </div>
+              </div>
+            ) : (
+              <div className="flex min-h-[50vh] w-full items-center justify-center rounded-[2rem] border border-dashed border-white/15 bg-white/5 p-16 text-center text-slate-300">
+                No campaign rows were returned from the sheet.
+              </div>
+            )
           ) : (
-            <div className="col-span-full flex items-center justify-center rounded-[2rem] border border-dashed border-white/15 bg-white/5 p-16 text-center text-slate-300">
-              No campaign rows were returned from the sheet.
-            </div>
+            visibleCampaigns.length > 0 ? (
+              visibleCampaigns.map((campaign) => (
+                <CampaignPanel key={`${state.data.metric}-${campaign.campaign}`} campaign={campaign} />
+              ))
+            ) : (
+              <div className="flex min-h-[50vh] w-full items-center justify-center rounded-[2rem] border border-dashed border-white/15 bg-white/5 p-16 text-center text-slate-300">
+                No campaign rows were returned from the sheet.
+              </div>
+            )
           )}
         </main>
       </div>
