@@ -17,7 +17,7 @@ function getRankLabel(rank: number): string {
 
 function RankBadge({ rank }: { rank: number }) {
   return (
-    <div className="rounded-full border border-amber-300/20 bg-slate-950/90 px-6 py-3 text-2xl font-black tracking-tight text-amber-300 shadow-[0_8px_24px_rgba(0,0,0,0.28)]">
+    <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-amber-300/20 bg-slate-950/90 text-sm font-black tracking-tight text-amber-300 shadow-[0_8px_24px_rgba(0,0,0,0.28)] sm:h-14 sm:w-14 sm:text-base">
       {getRankLabel(rank)}
     </div>
   );
@@ -29,6 +29,7 @@ type Props = {
   rotationMetrics: MetricKey[];
   refreshIntervalMs: number;
   headerRightText?: string;
+  headerRightTextByMetric?: Partial<Record<MetricKey, string>>;
 };
 
 type LoadState = {
@@ -58,16 +59,20 @@ async function readDashboardError(response: Response): Promise<string> {
 function AgentPhoto({
   name,
   photoLink,
+  className = "",
 }: {
   name: string;
   photoLink: string;
+  className?: string;
 }) {
   const src = `/api/image?url=${encodeURIComponent(photoLink)}&label=${encodeURIComponent(
     name.slice(0, 2).toUpperCase(),
   )}`;
 
   return (
-    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-900 shadow-lg">
+    <div
+      className={`relative h-24 w-24 shrink-0 overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-900 shadow-lg ${className}`}
+    >
       {/* Native img avoids Next.js local image query-string restrictions for the proxy route. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -82,10 +87,8 @@ function AgentPhoto({
 
 function AgentCard({
   agent,
-  metricLabel,
 }: {
   agent: CampaignLeaderboard["agents"][number];
-  metricLabel: string;
 }) {
   return (
     <article className="relative rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-3 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-xl">
@@ -96,9 +99,11 @@ function AgentCard({
         <AgentPhoto name={agent.name} photoLink={agent.photoLink} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-base font-semibold text-white">{agent.name}</p>
-          <p className="truncate text-xs uppercase tracking-[0.3em] text-slate-300/80">
-            {metricLabel}
-          </p>
+          {agent.teamName ? (
+            <p className="truncate text-[0.72rem] uppercase tracking-[0.28em] text-slate-300/70">
+              {agent.teamName}
+            </p>
+          ) : null}
           <p className="mt-2 text-3xl font-black tracking-tight text-amber-300">
             {agent.metricValue}
           </p>
@@ -110,10 +115,8 @@ function AgentCard({
 
 function CampaignPanel({
   campaign,
-  metricLabel,
 }: {
   campaign: CampaignLeaderboard;
-  metricLabel: string;
 }) {
   const topAgent = campaign.agents[0];
 
@@ -130,22 +133,26 @@ function CampaignPanel({
       </div>
 
       {topAgent ? (
-        <div className="relative mb-5 rounded-[1.6rem] border border-amber-300/15 bg-gradient-to-br from-amber-300/12 via-white/8 to-white/5 p-4">
+        <div className="relative mb-5 rounded-[1.7rem] border border-amber-300/20 bg-gradient-to-br from-amber-300/14 via-white/8 to-white/5 p-4 shadow-[0_20px_70px_rgba(245,158,11,0.14)]">
           <div className="absolute right-4 top-4">
             <RankBadge rank={topAgent.rank} />
           </div>
           <div className="flex items-center gap-4">
-            <AgentPhoto name={topAgent.name} photoLink={topAgent.photoLink} />
+            <AgentPhoto name={topAgent.name} photoLink={topAgent.photoLink} className="h-24 w-24 sm:h-28 sm:w-28" />
             <div className="min-w-0 flex-1">
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-200/70">Leading agent</p>
-              <p className="truncate text-2xl font-black tracking-tight text-white">
+              <p className="text-xs uppercase tracking-[0.35em] text-slate-100/75">Leading agent</p>
+              <p className="truncate text-2xl font-black tracking-tight text-white sm:text-[2.1rem]">
                 {topAgent.name}
               </p>
+              {topAgent.teamName ? (
+                <p className="truncate text-[0.72rem] uppercase tracking-[0.28em] text-slate-200/75">
+                  {topAgent.teamName}
+                </p>
+              ) : null}
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-amber-300 px-3 py-1 text-sm font-black text-slate-950">
+                <span className="rounded-full bg-amber-300 px-3 py-1 text-sm font-black text-slate-950 sm:px-4 sm:py-1.5 sm:text-base">
                   {topAgent.metricValue}
                 </span>
-                <span className="text-sm text-slate-300">{metricLabel}</span>
               </div>
             </div>
           </div>
@@ -158,7 +165,7 @@ function CampaignPanel({
 
       <div className="grid gap-3">
         {campaign.agents.slice(1).map((agent) => (
-          <AgentCard key={`${campaign.campaign}-${agent.emailId}-${agent.rank}`} agent={agent} metricLabel={metricLabel} />
+          <AgentCard key={`${campaign.campaign}-${agent.emailId}-${agent.rank}`} agent={agent} />
         ))}
       </div>
     </section>
@@ -166,7 +173,14 @@ function CampaignPanel({
 }
 
 export function LeaderboardDashboard(props: Props) {
-  const { initialData, initialError, rotationMetrics, refreshIntervalMs, headerRightText } = props;
+  const {
+    initialData,
+    initialError,
+    rotationMetrics,
+    refreshIntervalMs,
+    headerRightText,
+    headerRightTextByMetric,
+  } = props;
   const [metric, setMetric] = useState<MetricKey>(initialData.metric);
   const [state, setState] = useState<LoadState>({ data: initialData, status: "idle" });
 
@@ -225,8 +239,15 @@ export function LeaderboardDashboard(props: Props) {
   }, [rotationMetrics]);
 
   const activeLabel = getMetricLabel(metric);
+  const activeHeaderRightText = headerRightTextByMetric?.[metric] ?? headerRightText;
 
   const visibleCampaigns = state.data.campaigns.slice(0, 3);
+  const campaignGridClassName =
+    visibleCampaigns.length <= 1
+      ? "xl:grid-cols-1"
+      : visibleCampaigns.length === 2
+        ? "xl:grid-cols-2"
+        : "xl:grid-cols-3";
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.24),_transparent_34%),linear-gradient(135deg,_#020617_0%,_#08111f_45%,_#030712_100%)] text-white">
@@ -241,9 +262,9 @@ export function LeaderboardDashboard(props: Props) {
                 </h2>
               </div>
             </div>
-            {headerRightText ? (
+            {activeHeaderRightText ? (
               <div className="rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-sm font-semibold tracking-wide text-slate-200 sm:px-5 sm:py-3 sm:text-base">
-                {headerRightText}
+                {activeHeaderRightText}
               </div>
             ) : null}
           </div>
@@ -261,14 +282,10 @@ export function LeaderboardDashboard(props: Props) {
           </div>
         ) : null}
 
-        <main className="grid flex-1 gap-4 xl:grid-cols-3">
+        <main className={`grid flex-1 gap-4 ${campaignGridClassName}`}>
           {visibleCampaigns.length > 0 ? (
             visibleCampaigns.map((campaign) => (
-              <CampaignPanel
-                key={`${state.data.metric}-${campaign.campaign}`}
-                campaign={campaign}
-                metricLabel={activeLabel}
-              />
+              <CampaignPanel key={`${state.data.metric}-${campaign.campaign}`} campaign={campaign} />
             ))
           ) : (
             <div className="col-span-full flex items-center justify-center rounded-[2rem] border border-dashed border-white/15 bg-white/5 p-16 text-center text-slate-300">
