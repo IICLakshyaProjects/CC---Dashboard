@@ -271,6 +271,12 @@ export function LeaderboardDashboard(props: Props) {
   const activeHeaderRightText = headerRightTextByMetric?.[metric] ?? headerRightText;
 
   const visibleCampaigns = state.data.campaigns;
+  const visibleCampaignGridClassName =
+    visibleCampaigns.length <= 1
+      ? "sm:grid-cols-1"
+      : visibleCampaigns.length === 2
+        ? "sm:grid-cols-2"
+        : "sm:grid-cols-2 xl:grid-cols-3";
   const activeCampaign =
     campaignRotationIntervalMs && visibleCampaigns.length > 0
       ? visibleCampaigns[activeCampaignIndex] ?? visibleCampaigns[0]
@@ -309,7 +315,13 @@ export function LeaderboardDashboard(props: Props) {
           </div>
         ) : null}
 
-        <main className={campaignRotationIntervalMs ? "flex flex-1 items-stretch" : "flex flex-1 flex-col gap-4"}>
+        <main
+          className={
+            campaignRotationIntervalMs
+              ? "flex flex-1 items-stretch"
+              : `grid flex-1 gap-4 ${visibleCampaignGridClassName}`
+          }
+        >
           {campaignRotationIntervalMs ? (
             activeCampaign ? (
               <div className="flex w-full items-stretch">
