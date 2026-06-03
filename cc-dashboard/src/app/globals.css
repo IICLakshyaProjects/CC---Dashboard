@@ -40,3 +40,370 @@ img {
   max-width: 100%;
   display: block;
 }
+
+.achievement-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(118deg, rgba(255, 255, 255, 0.46), transparent 34%, rgba(251, 191, 36, 0.16) 72%, transparent),
+    radial-gradient(circle at 17% 22%, rgba(255, 255, 255, 0.9), transparent 22%),
+    radial-gradient(circle at 81% 16%, rgba(255, 246, 214, 0.78), transparent 24%);
+  opacity: 0.86;
+}
+
+.achievement-header,
+.achievement-hero-card {
+  animation: achievement-rise 700ms ease-out both;
+}
+
+.achievement-hero-card {
+  animation-delay: 90ms;
+}
+
+.achievement-card-shine,
+.achievement-card-mini-shine {
+  position: absolute;
+  inset: 0;
+  transform: translateX(-130%);
+  pointer-events: none;
+}
+
+.achievement-card-shine {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.28) 42%,
+    rgba(251, 191, 36, 0.38) 50%,
+    rgba(255, 255, 255, 0.24) 58%,
+    transparent 72%
+  );
+  animation: achievement-shine 4.8s ease-in-out 900ms infinite;
+}
+
+.achievement-card-mini-shine {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 44%,
+    rgba(251, 191, 36, 0.2) 50%,
+    transparent 66%
+  );
+  animation: achievement-shine 5.8s ease-in-out 1.3s infinite;
+}
+
+.achievement-light-streak {
+  background:
+    linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.64) 35%, rgba(251, 191, 36, 0.62) 52%, transparent 82%),
+    radial-gradient(ellipse at center, rgba(251, 191, 36, 0.34), transparent 64%);
+  filter: blur(8px);
+  opacity: 0.72;
+  animation: achievement-streak 5.2s ease-in-out infinite;
+}
+
+.achievement-orbit-wrap {
+  isolation: isolate;
+}
+
+.achievement-gold-orbit {
+  position: absolute;
+  inset: -12px;
+  z-index: -1;
+  border-radius: 999px;
+  border: 3px solid rgba(251, 191, 36, 0.85);
+  background:
+    conic-gradient(from 30deg, transparent 0 11%, rgba(255, 255, 255, 0.95) 16%, rgba(251, 191, 36, 1) 23%, transparent 34% 53%, rgba(255, 255, 255, 0.95) 60%, rgba(245, 158, 11, 0.9) 68%, transparent 78%),
+    radial-gradient(circle, rgba(251, 191, 36, 0.36), transparent 62%);
+  box-shadow: 0 0 44px rgba(245, 158, 11, 0.58), inset 0 0 28px rgba(251, 191, 36, 0.3);
+  filter: blur(0.5px);
+  animation: achievement-orbit 4.6s linear infinite;
+}
+
+.achievement-gold-orbit-alt {
+  inset: 4px -18px;
+  opacity: 0.74;
+  transform: rotate(-18deg);
+  animation-duration: 6.8s;
+  animation-direction: reverse;
+}
+
+.achievement-trophy-stage {
+  animation: achievement-float 3.7s ease-in-out infinite;
+  isolation: isolate;
+}
+
+.achievement-trophy-stage::before {
+  content: "";
+  position: absolute;
+  inset: -20px -18px;
+  z-index: -2;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at 54% 48%, rgba(255, 238, 185, 0.62), transparent 44%),
+    radial-gradient(circle at 66% 34%, rgba(255, 210, 210, 0.2), transparent 36%),
+    radial-gradient(ellipse at 50% 68%, rgba(245, 158, 11, 0.24), transparent 62%),
+    linear-gradient(90deg, transparent, rgba(255, 246, 214, 0.3));
+  filter: blur(8px);
+}
+
+.achievement-trophy-stage::after {
+  content: "";
+  position: absolute;
+  inset: 6px 0;
+  z-index: -1;
+  border-radius: 1.4rem;
+  background:
+    radial-gradient(circle at 54% 52%, rgba(255, 236, 179, 0.48), transparent 48%),
+    radial-gradient(circle at 73% 40%, rgba(255, 218, 218, 0.22), transparent 40%),
+    linear-gradient(90deg, transparent 0%, rgba(255, 248, 225, 0.28) 42%, rgba(252, 211, 77, 0.2) 100%);
+  filter: blur(20px);
+  opacity: 0.88;
+}
+
+.achievement-trophy-bloom {
+  border-radius: 1.4rem;
+  background:
+    radial-gradient(circle at 52% 48%, rgba(255, 239, 190, 0.56), transparent 42%),
+    radial-gradient(circle at 66% 36%, rgba(255, 213, 213, 0.22), transparent 38%),
+    radial-gradient(ellipse at 50% 74%, rgba(245, 158, 11, 0.3), transparent 55%);
+  filter: blur(12px);
+  opacity: 0.92;
+}
+
+.achievement-trophy-image {
+  filter: saturate(1.18) contrast(1.08);
+}
+
+.achievement-trophy-rays {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(251, 191, 36, 0.34) 0deg 8deg,
+    transparent 8deg 18deg
+  );
+  filter: blur(14px);
+  opacity: 0.76;
+  animation: achievement-orbit 18s linear infinite;
+}
+
+.achievement-trophy-sparkles {
+  background:
+    radial-gradient(circle at 23% 28%, rgba(255, 255, 255, 0.95) 0 1px, transparent 3px),
+    radial-gradient(circle at 74% 27%, rgba(251, 191, 36, 0.95) 0 1.5px, transparent 4px),
+    radial-gradient(circle at 86% 58%, rgba(255, 255, 255, 0.9) 0 1px, transparent 3px),
+    radial-gradient(circle at 33% 79%, rgba(251, 191, 36, 0.9) 0 1.25px, transparent 4px),
+    radial-gradient(circle at 62% 13%, rgba(255, 255, 255, 0.85) 0 1px, transparent 3px);
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
+  animation: achievement-sparkle 2.2s ease-in-out infinite;
+}
+
+.achievement-trophy-ring {
+  transform: perspective(120px) rotateX(62deg);
+  box-shadow: 0 0 32px rgba(245, 158, 11, 0.34), inset 0 0 18px rgba(251, 191, 36, 0.26);
+  animation: achievement-ring-pulse 2.8s ease-in-out infinite;
+}
+
+.achievement-trophy-glow {
+  animation: achievement-glow 2.8s ease-in-out infinite;
+}
+
+.achievement-rank-badge {
+  filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.22)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+}
+
+.achievement-sparkle {
+  animation: achievement-sparkle 1.9s ease-in-out infinite;
+}
+
+.achievement-sparkle-delay {
+  animation-delay: 700ms;
+}
+
+.achievement-confetti {
+  position: absolute;
+  width: 10px;
+  height: 16px;
+  border-radius: 2px;
+  opacity: 0.86;
+  transform: rotate(20deg);
+  animation: achievement-confetti 7s ease-in-out infinite;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.achievement-confetti:nth-child(2) {
+  animation-delay: 1.1s;
+}
+
+.achievement-confetti:nth-child(3) {
+  animation-delay: 2.2s;
+}
+
+.achievement-confetti:nth-child(4) {
+  animation-delay: 3.2s;
+}
+
+.achievement-confetti:nth-child(5) {
+  animation-delay: 4s;
+}
+
+.achievement-confetti:nth-child(6) {
+  animation-delay: 1.8s;
+}
+
+.achievement-confetti:nth-child(7) {
+  animation-delay: 3.8s;
+}
+
+.achievement-confetti:nth-child(8) {
+  animation-delay: 2.8s;
+}
+
+.achievement-confetti:nth-child(9) {
+  animation-delay: 4.6s;
+}
+
+.achievement-particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.75);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+  animation: achievement-particle 4.8s ease-in-out infinite;
+}
+
+@keyframes achievement-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes achievement-shine {
+  0%,
+  58% {
+    transform: translateX(-130%);
+  }
+
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes achievement-streak {
+  0%,
+  100% {
+    transform: translateX(-8%) translateY(-50%) rotate(-6deg);
+    opacity: 0.52;
+  }
+
+  50% {
+    transform: translateX(16%) translateY(-50%) rotate(-2deg);
+    opacity: 0.88;
+  }
+}
+
+@keyframes achievement-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes achievement-glow {
+  0%,
+  100% {
+    box-shadow: inset 0 0 18px rgba(251, 191, 36, 0.24), 0 0 22px rgba(245, 158, 11, 0.22);
+  }
+
+  50% {
+    box-shadow: inset 0 0 26px rgba(251, 191, 36, 0.34), 0 0 38px rgba(245, 158, 11, 0.36);
+  }
+}
+
+@keyframes achievement-sparkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8) rotate(0deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18) rotate(18deg);
+  }
+}
+
+@keyframes achievement-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes achievement-ring-pulse {
+  0%,
+  100% {
+    opacity: 0.52;
+    transform: perspective(120px) rotateX(62deg) scale(0.96);
+  }
+
+  50% {
+    opacity: 0.95;
+    transform: perspective(120px) rotateX(62deg) scale(1.08);
+  }
+}
+
+@keyframes achievement-confetti {
+  0% {
+    transform: translateY(-18px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(20px) rotate(160deg);
+  }
+
+  100% {
+    transform: translateY(-18px) rotate(360deg);
+  }
+}
+
+@keyframes achievement-particle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: translate3d(10px, -14px, 0) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-header,
+  .achievement-hero-card,
+  .achievement-card-shine,
+  .achievement-card-mini-shine,
+  .achievement-light-streak,
+  .achievement-gold-orbit,
+  .achievement-trophy-stage,
+  .achievement-trophy-ring,
+  .achievement-trophy-glow,
+  .achievement-trophy-rays,
+  .achievement-trophy-sparkles,
+  .achievement-sparkle,
+  .achievement-confetti,
+  .achievement-particle {
+    animation: none;
+  }
+}
