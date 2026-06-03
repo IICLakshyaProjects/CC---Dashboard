@@ -4,12 +4,7 @@ import { createEmptyMetricLeaderboard, loadMetricLeaderboard } from "@/lib/leade
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const ROTATION_METRICS = [
-  "admission",
-  "walkinTurned",
-  "admissionYesterday",
-  "walkinTurnedYesterday",
-] as const;
+const ROTATION_METRICS = ["admissionYesterday", "walkinTurnedYesterday"] as const;
 
 function formatYesterdayDate(): string {
   const yesterday = new Date();
@@ -34,6 +29,7 @@ export default async function Home() {
     initialError = error instanceof Error ? error.message : "Failed to load leaderboard data";
     initialData = createEmptyMetricLeaderboard(ROTATION_METRICS[0], initialError);
   }
+
   return (
     <LeaderboardDashboard
       initialData={initialData}

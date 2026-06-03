@@ -56,6 +56,15 @@ export type MetricLeaderboard = {
   sourceError?: string;
 };
 
+export type WalkinTurnedMtdLeaderboard = {
+  sheetName: string;
+  title: string;
+  month: string;
+  agents: RankedAgent[];
+  updatedAt: string;
+  sourceError?: string;
+};
+
 const GOOGLE_SHEETS_DOC_BASE = "https://docs.google.com/spreadsheets/d";
 const GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_SCOPES = [
@@ -313,6 +322,10 @@ function getConfiguredSheetName(): string {
   return sheetName || "Sheet1";
 }
 
+function resolveSheetName(overrideSheetName?: string): string {
+  return overrideSheetName?.trim() || getConfiguredSheetName();
+}
+
 function base64UrlEncode(input: string | Uint8Array): string {
   const buffer = typeof input === "string" ? Buffer.from(input, "utf8") : Buffer.from(input);
   return buffer
@@ -422,10 +435,10 @@ async function fetchText(url: string, token?: string): Promise<string> {
   return await response.text();
 }
 
-async function readSourceRows(): Promise<RawLeaderboardRow[]> {
+async function readSourceRows(sheetName?: string): Promise<RawLeaderboardRow[]> {
   const spreadsheetId = getEnvSpreadsheetId();
-  const sheetName = getConfiguredSheetName();
-  const exportUrl = `${GOOGLE_SHEETS_DOC_BASE}/${encodeURIComponent(spreadsheetId)}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&headers=1`;
+  const activeSheetName = resolveSheetName(sheetName);
+  const exportUrl = `${GOOGLE_SHEETS_DOC_BASE}/${encodeURIComponent(spreadsheetId)}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(activeSheetName)}&headers=1`;
 
   let csv: string;
   try {
@@ -495,11 +508,65 @@ export async function loadMetricLeaderboard(metric: MetricKey): Promise<MetricLe
   };
 }
 
+function sortWalkinTurnedMtdAgents(agents: AgentRecord[]): RankedAgent[] {
+  return [...agents]
+    .sort((left, right) => {
+      const metricDiff = right.walkinTurned - left.walkinTurned;
+      if (metricDiff !== 0) return metricDiff;
+
+      const admissionDiff = right.admission - left.admission;
+      if (admissionDiff !== 0) return admissionDiff;
+
+      const timeDiff = new Date(left.updatedAt).getTime() - new Date(right.updatedAt).getTime();
+      if (timeDiff !== 0) return timeDiff;
+
+      return left.name.localeCompare(right.name);
+    })
+    .slice(0, 5)
+    .map((agent, index) => ({
+      ...agent,
+      rank: index + 1,
+      metricValue: agent.walkinTurned,
+    }));
+}
+
+export async function loadWalkinTurnedMtdLeaderboard(): Promise<WalkinTurnedMtdLeaderboard> {
+  const rows = await readSourceRows("Walkin MTD");
+  const agents = rows
+    .map(normalizeRow)
+    .filter((agent) => shouldIncludeCampaign(agent.campaign) && agent.name.trim().length > 0);
+
+  const month = rows
+    .map((row) => asString(pickField(row, ["month", "Month", "month_name", "month name"])))
+    .find((m) => m) ?? "";
+
+  return {
+    sheetName: "Walkin MTD",
+    title: "Walkin Turned MTD",
+    month,
+    agents: sortWalkinTurnedMtdAgents(agents),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 export function createEmptyMetricLeaderboard(metric: MetricKey, sourceError?: string): MetricLeaderboard {
   return {
     metric,
     metricLabel: METRICS.find((entry) => entry.key === metric)?.label ?? "Walkin Scheduled",
     campaigns: [],
+    updatedAt: new Date().toISOString(),
+    sourceError,
+  };
+}
+
+export function createEmptyWalkinTurnedMtdLeaderboard(
+  sourceError?: string,
+): WalkinTurnedMtdLeaderboard {
+  return {
+    sheetName: "Walkin MTD",
+    title: "Walkin Turned MTD",
+    month: "",
+    agents: [],
     updatedAt: new Date().toISOString(),
     sourceError,
   };
