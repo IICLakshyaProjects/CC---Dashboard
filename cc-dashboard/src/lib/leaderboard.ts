@@ -60,7 +60,7 @@ export type WalkinTurnedMtdLeaderboard = {
   sheetName: string;
   title: string;
   month: string;
-  agents: RankedAgent[];
+  campaigns: CampaignLeaderboard[];
   updatedAt: string;
   sourceError?: string;
 };
@@ -530,11 +530,41 @@ function sortWalkinTurnedMtdAgents(agents: AgentRecord[]): RankedAgent[] {
     }));
 }
 
+function sortWalkinTurnedMtdCampaigns(campaigns: CampaignLeaderboard[]): CampaignLeaderboard[] {
+  return [...campaigns].sort((left, right) => {
+    const leftIsMeta = normalizeCampaignKey(left.campaign).includes("meta");
+    const rightIsMeta = normalizeCampaignKey(right.campaign).includes("meta");
+    if (leftIsMeta !== rightIsMeta) {
+      return leftIsMeta ? -1 : 1;
+    }
+
+    const metricDiff = (right.agents[0]?.metricValue ?? 0) - (left.agents[0]?.metricValue ?? 0);
+    if (metricDiff !== 0) return metricDiff;
+
+    return left.campaign.localeCompare(right.campaign);
+  });
+}
+
 export async function loadWalkinTurnedMtdLeaderboard(): Promise<WalkinTurnedMtdLeaderboard> {
   const rows = await readSourceRows("Walkin MTD");
   const agents = rows
     .map(normalizeRow)
     .filter((agent) => shouldIncludeCampaign(agent.campaign) && agent.name.trim().length > 0);
+
+  const campaignGroups = new Map<string, { campaign: string; agents: AgentRecord[] }>();
+  for (const agent of agents) {
+    const key = normalizeCampaignKey(agent.campaign);
+    const existing = campaignGroups.get(key);
+    if (existing) {
+      existing.agents.push(agent);
+      continue;
+    }
+
+    campaignGroups.set(key, {
+      campaign: agent.campaign,
+      agents: [agent],
+    });
+  }
 
   const month = rows
     .map((row) => asString(pickField(row, ["month", "Month", "month_name", "month name"])))
@@ -544,7 +574,12 @@ export async function loadWalkinTurnedMtdLeaderboard(): Promise<WalkinTurnedMtdL
     sheetName: "Walkin MTD",
     title: "Walkin Turned MTD",
     month,
-    agents: sortWalkinTurnedMtdAgents(agents),
+    campaigns: sortWalkinTurnedMtdCampaigns(
+      Array.from(campaignGroups.values()).map((group) => ({
+        campaign: group.campaign,
+        agents: sortWalkinTurnedMtdAgents(group.agents),
+      })),
+    ),
     updatedAt: new Date().toISOString(),
   };
 }
@@ -566,7 +601,7 @@ export function createEmptyWalkinTurnedMtdLeaderboard(
     sheetName: "Walkin MTD",
     title: "Walkin Turned MTD",
     month: "",
-    agents: [],
+    campaigns: [],
     updatedAt: new Date().toISOString(),
     sourceError,
   };

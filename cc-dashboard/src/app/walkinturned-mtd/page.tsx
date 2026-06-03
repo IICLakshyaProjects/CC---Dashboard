@@ -9,14 +9,15 @@ export const revalidate = 0;
 
 export default async function WalkinTurnedMtdPage() {
   let data;
+  let initialError: string | undefined;
 
   try {
     data = await loadWalkinTurnedMtdLeaderboard();
   } catch (error) {
-    const message =
+    initialError =
       error instanceof Error ? error.message : "Failed to load walkin turned leaderboard data";
-    data = createEmptyWalkinTurnedMtdLeaderboard(message);
+    data = createEmptyWalkinTurnedMtdLeaderboard(initialError);
   }
 
-  return <WalkinTurnedMtdBoard data={data} />;
+  return <WalkinTurnedMtdBoard initialData={data} initialError={initialError} />;
 }
