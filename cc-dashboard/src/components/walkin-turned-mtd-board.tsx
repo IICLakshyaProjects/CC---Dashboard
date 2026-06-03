@@ -257,17 +257,17 @@ function AgentCard({
       <div className="achievement-card-mini-shine" />
       {isTopRank ? <SparkleIcon className="achievement-sparkle absolute right-4 top-3 h-4 w-4 text-amber-400/80" /> : null}
       <div className="relative flex items-center gap-4">
-        <div className="relative shrink-0 pl-12">
+        <div className="relative shrink-0 pl-16">
           <div className={isTopRank ? `rounded-full ${photoFrameChrome} p-1.5` : ""}>
             <AgentPhoto
               name={agent.name}
               photoLink={agent.photoLink}
-              sizeClassName={compact ? "h-14 w-14" : "h-16 w-16 sm:h-20 sm:w-20"}
+              sizeClassName={compact ? "h-20 w-20 sm:h-24 sm:w-24" : "h-24 w-24 sm:h-28 sm:w-28"}
               roundedClassName="rounded-full"
             />
           </div>
           <div className="absolute left-0 top-1/2 z-20 -translate-y-1/2">
-            <RankBadge rank={agent.rank} className={agent.rank <= 3 ? "h-14 w-14" : "h-16 w-12"} />
+            <RankBadge rank={agent.rank} className="h-16 w-16 sm:h-20 sm:w-20" />
           </div>
         </div>
 
