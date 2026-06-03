@@ -1,4 +1,41 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { WalkinTurnedMtdLeaderboard } from "@/lib/leaderboard";
+
+type Campaign = WalkinTurnedMtdLeaderboard["campaigns"][number];
+type Agent = Campaign["agents"][number];
+
+type Props = {
+  initialData: WalkinTurnedMtdLeaderboard;
+  initialError?: string;
+  refreshIntervalMs?: number;
+  campaignRotationIntervalMs?: number;
+};
+
+type LoadState = {
+  data: WalkinTurnedMtdLeaderboard;
+  status: "idle" | "loading" | "error";
+  error?: string;
+};
+
+async function readDashboardError(response: Response): Promise<string> {
+  const fallback = `Failed to refresh Walkin MTD dashboard (${response.status})`;
+  const bodyText = await response.text();
+
+  if (!bodyText) return fallback;
+
+  try {
+    const parsed = JSON.parse(bodyText) as { error?: string };
+    if (typeof parsed.error === "string" && parsed.error.trim()) {
+      return parsed.error;
+    }
+  } catch {
+    return bodyText;
+  }
+
+  return fallback;
+}
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-IN").format(value);
@@ -42,8 +79,8 @@ function getInitialsColor(name: string): string {
     "bg-indigo-100 text-indigo-600",
   ];
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return colors[Math.abs(hash) % colors.length];
+  for (let i = 0; i < name.length; i += 1) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return colors[Math.abs(hash) % colors.length] ?? colors[0];
 }
 
 function AgentPhoto({
@@ -80,7 +117,6 @@ function AgentPhoto({
   );
 }
 
-
 function SparkleIcon({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
@@ -98,20 +134,6 @@ function CrownIcon({ className = "" }: { className?: string }) {
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
       <path d="m4 8 4 3.2L12 5l4 6.2L20 8l-1.4 9.2H5.4L4 8Z" fill="currentColor" />
       <path d="M6 20h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function CalendarIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
-      <path
-        d="M7 3v3M17 3v3M4.5 9.2h15M6.5 5h11A2.5 2.5 0 0 1 20 7.5v10A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-10A2.5 2.5 0 0 1 6.5 5Z"
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
     </svg>
   );
 }
@@ -167,18 +189,32 @@ function StatPill({
   accent?: boolean;
 }) {
   return (
-    <div className={`flex min-w-32 flex-col rounded-xl px-4 py-3 shadow-sm backdrop-blur ${accent ? "bg-gradient-to-br from-orange-50 via-white to-amber-50 ring-1 ring-amber-300/70" : "bg-gradient-to-br from-white via-blue-50 to-white ring-1 ring-blue-200/80"}`}>
-      <span className={`text-[0.6rem] font-bold uppercase tracking-widest ${accent ? "text-orange-600" : "text-blue-700"}`}>
+    <div
+      className={`flex min-w-32 flex-col rounded-xl px-4 py-3 shadow-sm backdrop-blur ${
+        accent
+          ? "bg-gradient-to-br from-orange-50 via-white to-amber-50 ring-1 ring-amber-300/70"
+          : "bg-gradient-to-br from-white via-blue-50 to-white ring-1 ring-blue-200/80"
+      }`}
+    >
+      <span
+        className={`text-[0.6rem] font-bold uppercase tracking-widest ${
+          accent ? "text-orange-600" : "text-blue-700"
+        }`}
+      >
         {label}
       </span>
-      <span className={`mt-0.5 text-3xl font-black leading-none tracking-tight ${accent ? "text-orange-600" : "text-blue-700"}`}>
+      <span
+        className={`mt-0.5 text-3xl font-black leading-none tracking-tight ${
+          accent ? "text-orange-600" : "text-blue-700"
+        }`}
+      >
         {value}
       </span>
     </div>
   );
 }
 
-function HeroCard({ agent }: { agent: WalkinTurnedMtdLeaderboard["agents"][number] }) {
+function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
   return (
     <article className="achievement-hero-card relative overflow-hidden rounded-[1.65rem] border border-amber-300/90 bg-[linear-gradient(115deg,_rgba(255,246,213,0.98)_0%,_rgba(255,255,255,0.97)_42%,_rgba(255,241,185,0.92)_100%)] p-5 shadow-[0_30px_100px_rgba(15,23,42,0.16),0_0_72px_rgba(245,158,11,0.28)] ring-1 ring-white/90 backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_38px_120px_rgba(15,23,42,0.2),0_0_88px_rgba(245,158,11,0.36)] sm:p-7">
       <div className="achievement-card-shine" />
@@ -188,8 +224,8 @@ function HeroCard({ agent }: { agent: WalkinTurnedMtdLeaderboard["agents"][numbe
       <div className="achievement-light-streak absolute left-0 top-1/2 h-20 w-[58%] -translate-y-1/2" />
       <div className="achievement-sparkle achievement-sparkle-delay absolute right-28 bottom-10 h-1.5 w-1.5 rounded-full bg-blue-500" />
 
-      <div className="relative grid gap-6 md:grid-cols-[auto_1fr_auto] md:items-center">
-        <div className="relative mx-auto w-fit shrink-0 pl-16 md:mx-0">
+      <div className="relative grid gap-6 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+        <div className="relative mx-auto w-fit shrink-0 pl-16 lg:mx-0">
           <div className="relative inline-flex rounded-[2.25rem] p-3">
             <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,_rgba(251,191,36,0.34),_transparent_68%)] blur-xl" />
             <div className="relative inline-flex rounded-full bg-gradient-to-br from-amber-200 via-white to-yellow-100 p-2 shadow-[0_18px_48px_rgba(245,158,11,0.26)]">
@@ -211,11 +247,11 @@ function HeroCard({ agent }: { agent: WalkinTurnedMtdLeaderboard["agents"][numbe
             <CrownIcon className="h-4 w-4 text-orange-500" />
             Champion
           </p>
-          <h3 className="mt-3 truncate text-3xl font-black tracking-tight text-blue-950 drop-shadow-[0_10px_22px_rgba(15,23,42,0.12)] sm:text-[2.7rem]">
+          <h3 className="mt-3 break-words text-3xl font-black tracking-tight text-blue-950 drop-shadow-[0_10px_22px_rgba(15,23,42,0.12)] sm:text-[2.7rem]">
             {agent.name}
           </h3>
           {agent.teamName ? (
-            <p className="mt-0.5 truncate text-sm font-black uppercase tracking-widest text-blue-600">
+            <p className="mt-0.5 break-words text-sm font-black uppercase tracking-widest text-blue-600">
               {agent.teamName}
             </p>
           ) : null}
@@ -226,7 +262,7 @@ function HeroCard({ agent }: { agent: WalkinTurnedMtdLeaderboard["agents"][numbe
           </div>
         </div>
 
-        <div className="pointer-events-none relative hidden min-h-60 w-80 shrink-0 items-center justify-center rounded-[1.4rem] bg-white md:flex">
+        <div className="pointer-events-none relative hidden min-h-60 w-80 shrink-0 items-center justify-center rounded-[1.4rem] bg-white xl:flex">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/generated/trophy-cutout.png"
@@ -236,6 +272,9 @@ function HeroCard({ agent }: { agent: WalkinTurnedMtdLeaderboard["agents"][numbe
           />
         </div>
       </div>
+      <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/70 px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.22em] text-blue-700">
+        Campaign: {campaign}
+      </div>
     </article>
   );
 }
@@ -244,7 +283,7 @@ function AgentCard({
   agent,
   compact = false,
 }: {
-  agent: WalkinTurnedMtdLeaderboard["agents"][number];
+  agent: Agent;
   compact?: boolean;
 }) {
   const isTopRank = agent.rank <= 3;
@@ -252,11 +291,13 @@ function AgentCard({
   const photoFrameChrome = getPhotoFrameChrome(agent.rank);
 
   return (
-    <article className={`group relative overflow-hidden rounded-2xl border p-4 ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_62px_rgba(15,23,42,0.14)] ${cardChrome}`}>
+    <article
+      className={`group relative overflow-hidden rounded-2xl border p-4 ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_62px_rgba(15,23,42,0.14)] ${cardChrome}`}
+    >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.14),_transparent_34%)] opacity-0 transition duration-300 group-hover:opacity-100" />
       <div className="achievement-card-mini-shine" />
       {isTopRank ? <SparkleIcon className="achievement-sparkle absolute right-4 top-3 h-4 w-4 text-amber-400/80" /> : null}
-      <div className="relative flex items-center gap-4">
+      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative shrink-0 pl-16">
           <div className={isTopRank ? `rounded-full ${photoFrameChrome} p-1.5` : ""}>
             <AgentPhoto
@@ -272,17 +313,21 @@ function AgentCard({
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className={`truncate font-black tracking-tight text-blue-950 ${compact ? "text-base" : "text-lg sm:text-xl"}`}>
+          <h3
+            className={`break-words font-black tracking-tight text-blue-950 ${
+              compact ? "text-base" : "text-lg sm:text-xl"
+            }`}
+          >
             {agent.name}
           </h3>
           {agent.teamName ? (
-            <p className="truncate text-[0.65rem] font-black uppercase tracking-widest text-blue-600">
+            <p className="break-words text-[0.65rem] font-black uppercase tracking-widest text-blue-600">
               {agent.teamName}
             </p>
           ) : null}
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
+        <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:flex-col sm:items-end">
           <div className="rounded-lg bg-gradient-to-br from-amber-50 to-white px-3 py-1.5 shadow-sm ring-1 ring-amber-200">
             <p className="text-[0.55rem] font-bold uppercase tracking-widest text-amber-600">Walk-in</p>
             <p className="text-sm font-black text-amber-700">{formatNumber(agent.metricValue)}</p>
@@ -305,11 +350,80 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
-export function WalkinTurnedMtdBoard({ data }: { data: WalkinTurnedMtdLeaderboard }) {
-  const topFive = data.agents.slice(0, 5);
-  const hero = topFive[0];
-  const rest = topFive.slice(1);
-  const updatedAt = formatUpdatedAt(data.updatedAt);
+export function WalkinTurnedMtdBoard({
+  initialData,
+  initialError,
+  refreshIntervalMs = 15_000,
+  campaignRotationIntervalMs = 15_000,
+}: Props) {
+  const [state, setState] = useState<LoadState>({
+    data: initialData,
+    status: "idle",
+  });
+  const [activeCampaignIndex, setActiveCampaignIndex] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function refresh() {
+      setState((previous) => ({ ...previous, status: "loading", error: undefined }));
+
+      try {
+        const response = await fetch("/api/walkin-mtd", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error(await readDashboardError(response));
+        }
+
+        const data = (await response.json()) as WalkinTurnedMtdLeaderboard;
+        if (mounted) {
+          setState({ data, status: "idle" });
+        }
+      } catch (error) {
+        if (!mounted) return;
+        setState((previous) => ({
+          ...previous,
+          status: "error",
+          error: error instanceof Error ? error.message : "Unable to refresh Walkin MTD dashboard",
+        }));
+      }
+    }
+
+    refresh();
+
+    const refreshTimer = window.setInterval(refresh, refreshIntervalMs);
+    return () => {
+      mounted = false;
+      window.clearInterval(refreshTimer);
+    };
+  }, [refreshIntervalMs]);
+
+  useEffect(() => {
+    if (state.data.campaigns.length === 0) {
+      setActiveCampaignIndex(0);
+      return undefined;
+    }
+
+    setActiveCampaignIndex((current) => Math.min(current, state.data.campaigns.length - 1));
+    return undefined;
+  }, [state.data.campaigns.length]);
+
+  useEffect(() => {
+    if (!campaignRotationIntervalMs || state.data.campaigns.length <= 1) return undefined;
+
+    const rotationTimer = window.setInterval(() => {
+      setActiveCampaignIndex((current) => (current + 1) % state.data.campaigns.length);
+    }, campaignRotationIntervalMs);
+
+    return () => {
+      window.clearInterval(rotationTimer);
+    };
+  }, [campaignRotationIntervalMs, state.data.campaigns.length]);
+
+  const activeCampaign = state.data.campaigns[activeCampaignIndex] ?? state.data.campaigns[0];
+  const updatedAt = formatUpdatedAt(state.data.updatedAt);
 
   return (
     <div className="achievement-page relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(147,197,253,0.24),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(251,191,36,0.24),_transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.2),_transparent_32%),radial-gradient(circle_at_48%_10%,_rgba(255,255,255,0.96),_transparent_38%),linear-gradient(135deg,_#f7fbff_0%,_#ffffff_38%,_#eaf3ff_100%)] text-blue-950">
@@ -328,28 +442,49 @@ export function WalkinTurnedMtdBoard({ data }: { data: WalkinTurnedMtdLeaderboar
       <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-7 sm:px-6 lg:px-8">
         <header className="achievement-header mb-6 flex flex-wrap items-end justify-between gap-4 px-2 py-3">
           <div className="relative min-w-0">
-            <h1 className="max-w-full text-3xl font-black leading-tight tracking-tight text-blue-950 drop-shadow-[0_8px_18px_rgba(15,23,42,0.08)] sm:text-5xl">
+            <h1 className="max-w-full break-words text-3xl font-black leading-tight tracking-tight text-blue-950 drop-shadow-[0_8px_18px_rgba(15,23,42,0.08)] sm:text-5xl">
               CC Performers Leaderboard
-              {data.month ? (
-                <span className="text-blue-900"> - {data.month.replace(/\s*\d{4}\s*$/, "").trim()}</span>
+              {activeCampaign ? (
+                <span className="text-blue-900"> - {activeCampaign.campaign}</span>
+              ) : null}
+              {state.data.month ? (
+                <span className="text-blue-900"> - {state.data.month.replace(/\s*\d{4}\s*$/, "").trim()}</span>
               ) : null}
             </h1>
+            {activeCampaign ? (
+              <p className="mt-1 break-words text-sm font-black uppercase tracking-[0.28em] text-blue-600">
+                Campaign: {activeCampaign.campaign}
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-col items-end gap-2">
             <span className="inline-flex items-center gap-2 text-[0.72rem] font-bold text-blue-700">
               <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.75)]" />
               Updated {updatedAt}
             </span>
+            {initialError ? (
+              <span className="max-w-[22rem] break-words text-right text-[0.68rem] font-semibold text-rose-600">
+                {initialError}
+              </span>
+            ) : null}
           </div>
         </header>
 
         <main className="flex flex-1 flex-col gap-5 pb-4">
-          {hero ? <HeroCard agent={hero} /> : <EmptyState message="No walkin turned rows were returned from the Walkin MTD sheet." />}
+          {activeCampaign?.agents[0] ? (
+            <HeroCard agent={activeCampaign.agents[0]} campaign={activeCampaign.campaign} />
+          ) : (
+            <EmptyState message="No walkin turned rows were returned from the Walkin MTD sheet." />
+          )}
 
-          {rest.length > 0 ? (
+          {activeCampaign && activeCampaign.agents.slice(1).length > 0 ? (
             <section className="grid gap-4 sm:grid-cols-2">
-              {rest.map((agent) => (
-                <AgentCard key={`${agent.emailId}-${agent.rank}`} agent={agent} compact={agent.rank > 3} />
+              {activeCampaign.agents.slice(1).map((agent) => (
+                <AgentCard
+                  key={`${activeCampaign.campaign}-${agent.emailId}-${agent.rank}`}
+                  agent={agent}
+                  compact={agent.rank > 3}
+                />
               ))}
             </section>
           ) : null}
