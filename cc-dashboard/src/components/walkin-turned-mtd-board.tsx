@@ -28,9 +28,6 @@ function formatUpdatedAt(value: string): string {
     day: "2-digit",
     month: "short",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
     timeZone: "Asia/Kolkata",
   }).format(parsed);
 }
@@ -83,24 +80,6 @@ function AgentPhoto({
   );
 }
 
-function LaurelMark({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 120 120" aria-hidden="true" className={className} fill="none">
-      <path
-        d="M36 94C20 78 20 44 40 24M84 94c16-16 16-50-4-70"
-        stroke="currentColor"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M31 80c8-2 12-6 13-13M29 63c8 0 13-3 17-10M34 46c7 2 13 0 18-7M89 80c-8-2-12-6-13-13M91 63c-8 0-13-3-17-10M86 46c-7 2-13 0-18-7"
-        stroke="currentColor"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 function SparkleIcon({ className = "" }: { className?: string }) {
   return (
@@ -208,7 +187,6 @@ function HeroCard({ agent }: { agent: WalkinTurnedMtdLeaderboard["agents"][numbe
       <div className="absolute bottom-0 left-0 h-44 w-44 rounded-full bg-blue-200/60 blur-2xl" />
       <div className="achievement-light-streak absolute left-0 top-1/2 h-20 w-[58%] -translate-y-1/2" />
       <div className="achievement-sparkle achievement-sparkle-delay absolute right-28 bottom-10 h-1.5 w-1.5 rounded-full bg-blue-500" />
-      <LaurelMark className="absolute right-10 top-10 hidden h-36 w-36 text-amber-300/60 md:block" />
 
       <div className="relative grid gap-6 md:grid-cols-[auto_1fr_auto] md:items-center">
         <div className="relative mx-auto w-fit shrink-0 pl-16 md:mx-0">
@@ -350,20 +328,14 @@ export function WalkinTurnedMtdBoard({ data }: { data: WalkinTurnedMtdLeaderboar
       <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-7 sm:px-6 lg:px-8">
         <header className="achievement-header mb-6 flex flex-wrap items-end justify-between gap-4 px-2 py-3">
           <div className="relative min-w-0">
-            <p className="text-[0.7rem] font-black uppercase tracking-[0.45em] text-orange-600">Monthly</p>
-            <div className="mt-2 flex items-center gap-3">
-              <LaurelMark className="hidden h-16 w-16 shrink-0 text-amber-400 sm:block" />
-              <h1 className="max-w-full text-3xl font-black leading-tight tracking-tight text-blue-950 drop-shadow-[0_8px_18px_rgba(15,23,42,0.08)] sm:text-5xl">
-                Walk-in Turned Leaderboard
-              </h1>
-              <LaurelMark className="hidden h-16 w-16 shrink-0 scale-x-[-1] text-amber-400 sm:block" />
-            </div>
+            <h1 className="max-w-full text-3xl font-black leading-tight tracking-tight text-blue-950 drop-shadow-[0_8px_18px_rgba(15,23,42,0.08)] sm:text-5xl">
+              CC Performers Leaderboard
+              {data.month ? (
+                <span className="text-blue-900"> - {data.month.replace(/\s*\d{4}\s*$/, "").trim()}</span>
+              ) : null}
+            </h1>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-blue-950 px-4 py-2 text-xs font-black text-white shadow-[0_12px_28px_rgba(30,64,175,0.22)] ring-1 ring-blue-900">
-              {data.sheetName}
-              <CalendarIcon className="h-4 w-4 text-white" />
-            </span>
             <span className="inline-flex items-center gap-2 text-[0.72rem] font-bold text-blue-700">
               <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.75)]" />
               Updated {updatedAt}

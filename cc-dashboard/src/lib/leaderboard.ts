@@ -59,6 +59,7 @@ export type MetricLeaderboard = {
 export type WalkinTurnedMtdLeaderboard = {
   sheetName: string;
   title: string;
+  month: string;
   agents: RankedAgent[];
   updatedAt: string;
   sourceError?: string;
@@ -535,9 +536,14 @@ export async function loadWalkinTurnedMtdLeaderboard(): Promise<WalkinTurnedMtdL
     .map(normalizeRow)
     .filter((agent) => shouldIncludeCampaign(agent.campaign) && agent.name.trim().length > 0);
 
+  const month = rows
+    .map((row) => asString(pickField(row, ["month", "Month", "month_name", "month name"])))
+    .find((m) => m) ?? "";
+
   return {
     sheetName: "Walkin MTD",
     title: "Walkin Turned MTD",
+    month,
     agents: sortWalkinTurnedMtdAgents(agents),
     updatedAt: new Date().toISOString(),
   };
@@ -559,6 +565,7 @@ export function createEmptyWalkinTurnedMtdLeaderboard(
   return {
     sheetName: "Walkin MTD",
     title: "Walkin Turned MTD",
+    month: "",
     agents: [],
     updatedAt: new Date().toISOString(),
     sourceError,
