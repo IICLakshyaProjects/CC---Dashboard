@@ -224,51 +224,51 @@ function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
       <div className="achievement-light-streak absolute left-0 top-1/2 h-20 w-[58%] -translate-y-1/2" />
       <div className="achievement-sparkle achievement-sparkle-delay absolute right-28 bottom-10 h-1.5 w-1.5 rounded-full bg-blue-500" />
 
-      <div className="relative grid gap-6 lg:grid-cols-[auto_1fr_auto] lg:items-center">
-        <div className="relative mx-auto w-fit shrink-0 pl-16 lg:mx-0">
-          <div className="relative inline-flex rounded-[2.25rem] p-3">
+      <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-4 lg:gap-6">
+        <div className="relative w-fit shrink-0 pl-14 lg:pl-16">
+          <div className="relative inline-flex rounded-[2.25rem] p-2 lg:p-3">
             <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,_rgba(251,191,36,0.34),_transparent_68%)] blur-xl" />
             <div className="relative inline-flex rounded-full bg-gradient-to-br from-amber-200 via-white to-yellow-100 p-2 shadow-[0_18px_48px_rgba(245,158,11,0.26)]">
               <AgentPhoto
                 name={agent.name}
                 photoLink={agent.photoLink}
-                sizeClassName="h-32 w-32 sm:h-40 sm:w-40"
+                sizeClassName="h-24 w-24 lg:h-36 lg:w-36"
                 roundedClassName="rounded-full"
               />
             </div>
           </div>
           <div className="absolute left-0 top-1/2 z-20 -translate-y-1/2">
-            <RankBadge rank={agent.rank} className="h-16 w-16 sm:h-20 sm:w-20" />
+            <RankBadge rank={agent.rank} className="h-14 w-14 lg:h-20 lg:w-20" />
           </div>
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-100 px-4 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.28em] text-orange-700 shadow-[0_10px_28px_rgba(245,158,11,0.24)]">
-            <CrownIcon className="h-4 w-4 text-orange-500" />
+          <p className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-100 px-3 py-1 text-[0.6rem] font-black uppercase tracking-[0.28em] text-orange-700 shadow-[0_10px_28px_rgba(245,158,11,0.24)] lg:gap-2 lg:px-4 lg:py-1.5 lg:text-[0.65rem]">
+            <CrownIcon className="h-3.5 w-3.5 text-orange-500 lg:h-4 lg:w-4" />
             Champion
           </p>
-          <h3 className="mt-3 break-words text-3xl font-black tracking-tight text-blue-950 drop-shadow-[0_10px_22px_rgba(15,23,42,0.12)] sm:text-[2.7rem]">
+          <h3 className="mt-2 break-words text-xl font-black tracking-tight text-blue-950 drop-shadow-[0_10px_22px_rgba(15,23,42,0.12)] lg:mt-3 lg:text-3xl xl:text-[2.7rem]">
             {agent.name}
           </h3>
           {agent.teamName ? (
-            <p className="mt-0.5 break-words text-sm font-black uppercase tracking-widest text-blue-600">
+            <p className="mt-0.5 break-words text-xs font-black uppercase tracking-widest text-blue-600 lg:text-sm">
               {agent.teamName}
             </p>
           ) : null}
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-3 flex flex-wrap gap-2 lg:mt-4 lg:gap-3">
             <StatPill label="Walk-in Turned" value={formatNumber(agent.metricValue)} accent />
             <StatPill label="Admissions" value={formatNumber(agent.admission)} />
           </div>
         </div>
 
-        <div className="pointer-events-none relative hidden min-h-60 w-80 shrink-0 items-center justify-center rounded-[1.4rem] bg-white xl:flex">
+        <div className="pointer-events-none relative flex min-h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-white lg:min-h-60 lg:w-72 lg:rounded-[1.4rem]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/generated/trophy-cutout.png"
             alt=""
             aria-hidden="true"
-            className="achievement-trophy-image relative z-10 max-h-64 w-auto object-contain"
+            className="achievement-trophy-image relative z-10 max-h-24 w-auto object-contain lg:max-h-64"
           />
         </div>
       </div>
@@ -292,49 +292,45 @@ function AgentCard({
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-2xl border p-4 ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_62px_rgba(15,23,42,0.14)] ${cardChrome}`}
+      className={`group relative h-full overflow-hidden rounded-2xl border p-4 ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_62px_rgba(15,23,42,0.14)] ${cardChrome}`}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.14),_transparent_34%)] opacity-0 transition duration-300 group-hover:opacity-100" />
       <div className="achievement-card-mini-shine" />
       {isTopRank ? <SparkleIcon className="achievement-sparkle absolute right-4 top-3 h-4 w-4 text-amber-400/80" /> : null}
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative shrink-0 pl-16">
+      <div className="relative flex flex-row items-start gap-3 lg:gap-4">
+        <div className="relative shrink-0 pl-12 lg:pl-16">
           <div className={isTopRank ? `rounded-full ${photoFrameChrome} p-1.5` : ""}>
             <AgentPhoto
               name={agent.name}
               photoLink={agent.photoLink}
-              sizeClassName={compact ? "h-20 w-20 sm:h-24 sm:w-24" : "h-24 w-24 sm:h-28 sm:w-28"}
+              sizeClassName="h-16 w-16 lg:h-24 lg:w-24"
               roundedClassName="rounded-full"
             />
           </div>
           <div className="absolute left-0 top-1/2 z-20 -translate-y-1/2">
-            <RankBadge rank={agent.rank} className="h-16 w-16 sm:h-20 sm:w-20" />
+            <RankBadge rank={agent.rank} className="h-12 w-12 lg:h-16 lg:w-16" />
           </div>
         </div>
 
-        <div className="min-w-0 flex-1">
-          <h3
-            className={`break-words font-black tracking-tight text-blue-950 ${
-              compact ? "text-base" : "text-lg sm:text-xl"
-            }`}
-          >
+        <div className="min-w-0 flex-1 pt-1">
+          <h3 className="break-words text-sm font-black tracking-tight text-blue-950 lg:text-lg">
             {agent.name}
           </h3>
           {agent.teamName ? (
-            <p className="break-words text-[0.65rem] font-black uppercase tracking-widest text-blue-600">
+            <p className="break-words text-[0.6rem] font-black uppercase tracking-widest text-blue-600 lg:text-[0.65rem]">
               {agent.teamName}
             </p>
           ) : null}
         </div>
 
-        <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:flex-col sm:items-end">
-          <div className="rounded-lg bg-gradient-to-br from-amber-50 to-white px-3 py-1.5 shadow-sm ring-1 ring-amber-200">
-            <p className="text-[0.55rem] font-bold uppercase tracking-widest text-amber-600">Walk-in</p>
-            <p className="text-sm font-black text-amber-700">{formatNumber(agent.metricValue)}</p>
+        <div className="flex shrink-0 flex-col items-end gap-1.5 pt-1">
+          <div className="rounded-lg bg-gradient-to-br from-amber-50 to-white px-2.5 py-1.5 shadow-sm ring-1 ring-amber-200 lg:px-3 lg:py-2">
+            <p className="text-[0.55rem] font-bold uppercase tracking-widest text-amber-600">WT</p>
+            <p className="text-sm font-black leading-tight text-amber-700 lg:text-base">{formatNumber(agent.metricValue)}</p>
           </div>
-          <div className="rounded-lg bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200">
-            <p className="text-[0.55rem] font-bold uppercase tracking-widest text-slate-500">Admis.</p>
-            <p className="text-sm font-black text-slate-700">{formatNumber(agent.admission)}</p>
+          <div className="rounded-lg bg-slate-50 px-2.5 py-1.5 ring-1 ring-slate-200 lg:px-3 lg:py-2">
+            <p className="text-[0.55rem] font-bold uppercase tracking-widest text-slate-500">Adm</p>
+            <p className="text-sm font-black leading-tight text-slate-700 lg:text-base">{formatNumber(agent.admission)}</p>
           </div>
         </div>
       </div>
@@ -475,7 +471,7 @@ export function WalkinTurnedMtdBoard({
           )}
 
           {activeCampaign && activeCampaign.agents.slice(1).length > 0 ? (
-            <section className="grid gap-4 sm:grid-cols-2">
+            <section className="grid flex-1 grid-cols-2 gap-3 auto-rows-fr">
               {activeCampaign.agents.slice(1).map((agent) => (
                 <AgentCard
                   key={`${activeCampaign.campaign}-${agent.emailId}-${agent.rank}`}
