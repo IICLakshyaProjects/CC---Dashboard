@@ -458,7 +458,7 @@ function getMetricValue(agent: AgentRecord, metric: MetricKey): number {
 }
 
 function sortAgents(metric: MetricKey, agents: AgentRecord[]): RankedAgent[] {
-  return [...agents]
+  const sorted = [...agents]
     .sort((left, right) => {
       const metricDiff = getMetricValue(right, metric) - getMetricValue(left, metric);
       if (metricDiff !== 0) return metricDiff;
@@ -468,12 +468,16 @@ function sortAgents(metric: MetricKey, agents: AgentRecord[]): RankedAgent[] {
 
       return left.name.localeCompare(right.name);
     })
-    .slice(0, 5)
-    .map((agent, index) => ({
-      ...agent,
-      rank: index + 1,
-      metricValue: getMetricValue(agent, metric),
-    }));
+    .slice(0, 5);
+
+  let currentRank = 1;
+  return sorted.map((agent, index) => {
+    const metricValue = getMetricValue(agent, metric);
+    if (index > 0 && metricValue < getMetricValue(sorted[index - 1], metric)) {
+      currentRank++;
+    }
+    return { ...agent, rank: currentRank, metricValue };
+  });
 }
 
 export async function loadMetricLeaderboard(metric: MetricKey): Promise<MetricLeaderboard> {
@@ -509,7 +513,7 @@ export async function loadMetricLeaderboard(metric: MetricKey): Promise<MetricLe
 }
 
 function sortWalkinTurnedMtdAgents(agents: AgentRecord[]): RankedAgent[] {
-  return [...agents]
+  const sorted = [...agents]
     .sort((left, right) => {
       const metricDiff = right.walkinTurned - left.walkinTurned;
       if (metricDiff !== 0) return metricDiff;
@@ -522,12 +526,15 @@ function sortWalkinTurnedMtdAgents(agents: AgentRecord[]): RankedAgent[] {
 
       return left.name.localeCompare(right.name);
     })
-    .slice(0, 5)
-    .map((agent, index) => ({
-      ...agent,
-      rank: index + 1,
-      metricValue: agent.walkinTurned,
-    }));
+    .slice(0, 5);
+
+  let currentRank = 1;
+  return sorted.map((agent, index) => {
+    if (index > 0 && agent.walkinTurned < sorted[index - 1].walkinTurned) {
+      currentRank++;
+    }
+    return { ...agent, rank: currentRank, metricValue: agent.walkinTurned };
+  });
 }
 
 function sortWalkinTurnedMtdCampaigns(campaigns: CampaignLeaderboard[]): CampaignLeaderboard[] {

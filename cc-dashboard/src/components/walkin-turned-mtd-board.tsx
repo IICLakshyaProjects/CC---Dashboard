@@ -225,7 +225,7 @@ function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
       <div className="achievement-sparkle achievement-sparkle-delay absolute right-28 bottom-10 h-1.5 w-1.5 rounded-full bg-blue-500" />
 
       <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-4 lg:gap-6">
-        <div className="relative w-fit shrink-0 pl-14 lg:pl-16">
+        <div className="relative w-fit shrink-0">
           <div className="relative inline-flex rounded-[2.25rem] p-2 lg:p-3">
             <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,_rgba(251,191,36,0.34),_transparent_68%)] blur-xl" />
             <div className="relative inline-flex rounded-full bg-gradient-to-br from-amber-200 via-white to-yellow-100 p-2 shadow-[0_18px_48px_rgba(245,158,11,0.26)]">
@@ -237,7 +237,7 @@ function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
               />
             </div>
           </div>
-          <div className="absolute left-0 top-1/2 z-20 -translate-y-1/2">
+          <div className="absolute bottom-1 left-1 z-20">
             <RankBadge rank={agent.rank} className="h-14 w-14 lg:h-20 lg:w-20" />
           </div>
         </div>
@@ -272,9 +272,6 @@ function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
           />
         </div>
       </div>
-      <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/70 px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.22em] text-blue-700">
-        Campaign: {campaign}
-      </div>
     </article>
   );
 }
@@ -298,7 +295,7 @@ function AgentCard({
       <div className="achievement-card-mini-shine" />
       {isTopRank ? <SparkleIcon className="achievement-sparkle absolute right-4 top-3 h-4 w-4 text-amber-400/80" /> : null}
       <div className="relative flex flex-row items-start gap-3 lg:gap-4">
-        <div className="relative shrink-0 pl-12 lg:pl-16">
+        <div className="relative w-fit shrink-0">
           <div className={isTopRank ? `rounded-full ${photoFrameChrome} p-1.5` : ""}>
             <AgentPhoto
               name={agent.name}
@@ -307,8 +304,8 @@ function AgentCard({
               roundedClassName="rounded-full"
             />
           </div>
-          <div className="absolute left-0 top-1/2 z-20 -translate-y-1/2">
-            <RankBadge rank={agent.rank} className="h-12 w-12 lg:h-16 lg:w-16" />
+          <div className="absolute bottom-0 left-0 z-20">
+            <RankBadge rank={agent.rank} className="h-9 w-9 lg:h-12 lg:w-12" />
           </div>
         </div>
 
@@ -445,7 +442,7 @@ export function WalkinTurnedMtdBoard({
               ) : null}
             </h1>
             {activeCampaign ? (
-              <p className="mt-1 w-full break-words text-center text-sm font-black uppercase tracking-[0.28em] text-blue-600">
+              <p className="mt-1 w-full break-words text-center text-lg font-black uppercase tracking-[0.28em] text-blue-600">
                 {activeCampaign.campaign}
               </p>
             ) : null}
