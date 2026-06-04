@@ -459,6 +459,7 @@ function getMetricValue(agent: AgentRecord, metric: MetricKey): number {
 
 function sortAgents(metric: MetricKey, agents: AgentRecord[]): RankedAgent[] {
   const sorted = [...agents]
+    .filter((agent) => getMetricValue(agent, metric) > 0)
     .sort((left, right) => {
       const metricDiff = getMetricValue(right, metric) - getMetricValue(left, metric);
       if (metricDiff !== 0) return metricDiff;
@@ -556,7 +557,7 @@ export async function loadWalkinTurnedMtdLeaderboard(): Promise<WalkinTurnedMtdL
   const rows = await readSourceRows("Walkin MTD");
   const agents = rows
     .map(normalizeRow)
-    .filter((agent) => shouldIncludeCampaign(agent.campaign) && agent.name.trim().length > 0);
+    .filter((agent) => shouldIncludeCampaign(agent.campaign) && agent.name.trim().length > 0 && agent.walkinTurned > 0);
 
   const campaignGroups = new Map<string, { campaign: string; agents: AgentRecord[] }>();
   for (const agent of agents) {
