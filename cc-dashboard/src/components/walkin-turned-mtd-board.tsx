@@ -444,16 +444,13 @@ export function WalkinTurnedMtdBoard({
           <div className="relative min-w-0">
             <h1 className="max-w-full break-words text-3xl font-black leading-tight tracking-tight text-blue-950 drop-shadow-[0_8px_18px_rgba(15,23,42,0.08)] sm:text-5xl">
               CC Performers Leaderboard
-              {activeCampaign ? (
-                <span className="text-blue-900"> - {activeCampaign.campaign}</span>
-              ) : null}
               {state.data.month ? (
                 <span className="text-blue-900"> - {state.data.month.replace(/\s*\d{4}\s*$/, "").trim()}</span>
               ) : null}
             </h1>
             {activeCampaign ? (
-              <p className="mt-1 break-words text-sm font-black uppercase tracking-[0.28em] text-blue-600">
-                Campaign: {activeCampaign.campaign}
+              <p className="mt-1 w-full break-words text-center text-sm font-black uppercase tracking-[0.28em] text-blue-600">
+                {activeCampaign.campaign}
               </p>
             ) : null}
           </div>
