@@ -235,10 +235,10 @@ function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
                 sizeClassName="h-24 w-24 lg:h-36 lg:w-36"
                 roundedClassName="rounded-full"
               />
+              <div className="absolute bottom-0 left-1/2 z-20 -translate-x-1/2 translate-y-1/2">
+                <RankBadge rank={agent.rank} className="h-14 w-14 lg:h-20 lg:w-20" />
+              </div>
             </div>
-          </div>
-          <div className="absolute bottom-1 left-1 z-20">
-            <RankBadge rank={agent.rank} className="h-14 w-14 lg:h-20 lg:w-20" />
           </div>
         </div>
 
