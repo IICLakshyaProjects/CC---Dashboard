@@ -531,8 +531,11 @@ function sortWalkinTurnedMtdAgents(agents: AgentRecord[]): RankedAgent[] {
 
   let currentRank = 1;
   return sorted.map((agent, index) => {
-    if (index > 0 && agent.walkinTurned < sorted[index - 1].walkinTurned) {
-      currentRank++;
+    if (index > 0) {
+      const prev = sorted[index - 1];
+      const lowerWt = agent.walkinTurned < prev.walkinTurned;
+      const sameWtLowerAdm = agent.walkinTurned === prev.walkinTurned && agent.admission < prev.admission;
+      if (lowerWt || sameWtLowerAdm) currentRank++;
     }
     return { ...agent, rank: currentRank, metricValue: agent.walkinTurned };
   });

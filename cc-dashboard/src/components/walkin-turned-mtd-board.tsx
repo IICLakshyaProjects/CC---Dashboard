@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { WalkinTurnedMtdLeaderboard } from "@/lib/leaderboard";
 
 type Campaign = WalkinTurnedMtdLeaderboard["campaigns"][number];
@@ -117,9 +117,9 @@ function AgentPhoto({
   );
 }
 
-function SparkleIcon({ className = "" }: { className?: string }) {
+function SparkleIcon({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} style={style} fill="none">
       <path
         d="M12 3.5 13.8 9l5.7 1.8-5.7 1.8L12 18.5l-1.8-5.9-5.7-1.8L10.2 9 12 3.5Z"
         fill="currentColor"
@@ -140,20 +140,20 @@ function CrownIcon({ className = "" }: { className?: string }) {
 
 function getAgentCardChrome(rank: number): string {
   if (rank === 2) {
-    return "border-blue-300/90 bg-[radial-gradient(circle_at_12%_38%,_rgba(255,255,255,0.96),_transparent_30%),linear-gradient(135deg,_rgba(248,250,252,0.98),_rgba(219,234,254,0.9),_rgba(255,255,255,0.94))] ring-blue-200/90 shadow-[0_22px_70px_rgba(59,130,246,0.18),0_0_28px_rgba(148,163,184,0.24)]";
+    return "border-slate-300/90 bg-[radial-gradient(circle_at_12%_38%,_rgba(255,255,255,0.99),_transparent_28%),radial-gradient(circle_at_88%_72%,_rgba(226,232,240,0.6),_transparent_34%),linear-gradient(135deg,_rgba(248,250,252,0.99),_rgba(226,232,240,0.92),_rgba(241,245,249,0.96))] ring-slate-300/70";
   }
 
   if (rank === 3) {
-    return "border-orange-300/90 bg-[radial-gradient(circle_at_16%_42%,_rgba(255,237,213,0.86),_transparent_32%),linear-gradient(135deg,_rgba(255,247,237,0.98),_rgba(255,255,255,0.94),_rgba(254,215,170,0.82))] ring-orange-300/90 shadow-[0_22px_70px_rgba(194,65,12,0.17),0_0_30px_rgba(251,146,60,0.24)]";
+    return "border-[#7B3F00]/55 bg-[radial-gradient(circle_at_14%_38%,_rgba(184,115,51,0.32),_transparent_34%),radial-gradient(circle_at_86%_72%,_rgba(101,50,25,0.26),_transparent_38%),linear-gradient(135deg,_rgba(255,248,242,0.99),_rgba(184,115,51,0.18),_rgba(92,46,0,0.1))] ring-[#8B4513]/32";
   }
 
   return "border-blue-100/90 bg-[linear-gradient(135deg,_rgba(255,255,255,0.98),_rgba(248,250,252,0.96),_rgba(239,246,255,0.86))] ring-blue-100 shadow-[0_18px_52px_rgba(15,23,42,0.09),0_0_20px_rgba(59,130,246,0.1)]";
 }
 
 function getPhotoFrameChrome(rank: number): string {
-  if (rank === 2) return "bg-gradient-to-br from-white via-slate-200 to-blue-100 shadow-[0_0_30px_rgba(59,130,246,0.34)] ring-1 ring-blue-200";
-  if (rank === 3) return "bg-gradient-to-br from-orange-300 via-white to-amber-200 shadow-[0_0_30px_rgba(251,146,60,0.42)] ring-1 ring-orange-200";
-  return "bg-gradient-to-br from-blue-200 via-white to-slate-100 shadow-[0_0_24px_rgba(37,99,235,0.22)] ring-1 ring-blue-200";
+  if (rank === 2) return "bg-gradient-to-br from-white via-slate-200 to-slate-300 shadow-[0_0_28px_rgba(148,163,184,0.52),0_0_10px_rgba(255,255,255,0.9)] ring-2 ring-slate-300/80";
+  if (rank === 3) return "bg-gradient-to-br from-[#D4956A] via-[#B87333] to-[#5C2E00] shadow-[0_0_34px_rgba(92,46,0,0.68),0_0_14px_rgba(184,115,51,0.54)] ring-2 ring-[#8B4513]/55";
+  return "bg-gradient-to-br from-amber-200 via-white to-yellow-100 shadow-[0_0_24px_rgba(245,158,11,0.34)] ring-1 ring-amber-300";
 }
 
 function getRankBadgeSrc(rank: number): string {
@@ -216,42 +216,48 @@ function StatPill({
 
 function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
   return (
-    <article className="achievement-hero-card relative overflow-hidden rounded-[1.65rem] border border-amber-300/90 bg-[linear-gradient(115deg,_rgba(255,246,213,0.98)_0%,_rgba(255,255,255,0.97)_42%,_rgba(255,241,185,0.92)_100%)] p-5 shadow-[0_30px_100px_rgba(15,23,42,0.16),0_0_72px_rgba(245,158,11,0.28)] ring-1 ring-white/90 backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_38px_120px_rgba(15,23,42,0.2),0_0_88px_rgba(245,158,11,0.36)] sm:p-7">
+    <article className="achievement-hero-card achievement-gold-aura relative overflow-hidden rounded-[1.65rem] border-2 border-amber-400/90 bg-[linear-gradient(115deg,_rgba(255,243,196,0.99)_0%,_rgba(255,255,255,0.97)_36%,_rgba(255,244,202,0.98)_66%,_rgba(255,232,150,0.95)_100%)] p-5 ring-1 ring-amber-300/80 backdrop-blur transition duration-300 hover:-translate-y-0.5 sm:p-7">
       <div className="achievement-card-shine" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_21%_51%,_rgba(251,191,36,0.2),_transparent_30%),radial-gradient(circle_at_82%_48%,_rgba(255,232,184,0.58),_transparent_35%),radial-gradient(circle_at_88%_34%,_rgba(255,213,213,0.24),_transparent_28%),linear-gradient(90deg,_rgba(255,255,255,0.62)_0%,_rgba(255,252,244,0.44)_46%,_rgba(255,238,188,0.34)_100%)]" />
-      <div className="absolute -right-14 -top-14 h-72 w-72 rounded-full bg-amber-200/75 blur-3xl" />
-      <div className="absolute bottom-0 left-0 h-44 w-44 rounded-full bg-blue-200/60 blur-2xl" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_21%_51%,_rgba(251,191,36,0.28),_transparent_30%),radial-gradient(circle_at_82%_48%,_rgba(255,225,130,0.62),_transparent_35%),radial-gradient(circle_at_88%_34%,_rgba(255,210,80,0.3),_transparent_28%),linear-gradient(90deg,_rgba(255,255,255,0.58)_0%,_rgba(255,250,220,0.44)_46%,_rgba(255,230,120,0.36)_100%)]" />
+      {/* Golden glow blobs */}
+      <div className="absolute -right-10 -top-10 h-80 w-80 rounded-full bg-amber-300/80 blur-3xl" />
+      <div className="absolute -bottom-12 -right-12 h-56 w-56 rounded-full bg-yellow-300/60 blur-3xl" />
+      <div className="absolute -left-8 top-0 h-44 w-44 rounded-full bg-amber-200/55 blur-3xl" />
+      <div className="absolute bottom-0 left-0 h-36 w-36 rounded-full bg-blue-200/40 blur-2xl" />
       <div className="achievement-light-streak absolute left-0 top-1/2 h-20 w-[58%] -translate-y-1/2" />
-      <div className="achievement-sparkle achievement-sparkle-delay absolute right-28 bottom-10 h-1.5 w-1.5 rounded-full bg-blue-500" />
 
       <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-4 lg:gap-6">
         <div className="relative w-fit shrink-0">
           <div className="relative inline-flex rounded-[2.25rem] p-2 lg:p-3">
-            <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,_rgba(251,191,36,0.34),_transparent_68%)] blur-xl" />
-            <div className="relative inline-flex rounded-full bg-gradient-to-br from-amber-200 via-white to-yellow-100 p-2 shadow-[0_18px_48px_rgba(245,158,11,0.26)]">
-              <AgentPhoto
-                name={agent.name}
-                photoLink={agent.photoLink}
-                sizeClassName="h-24 w-24 lg:h-36 lg:w-36"
-                roundedClassName="rounded-full"
-              />
-              <div className="absolute bottom-0 left-1/2 z-20 -translate-x-1/2 translate-y-1/2">
-                <RankBadge rank={agent.rank} className="h-14 w-14 lg:h-20 lg:w-20" />
+            <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,_rgba(251,191,36,0.44),_transparent_68%)] blur-xl" />
+            <div className="relative inline-flex">
+              <div className="achievement-gold-orbit" />
+              <div className="achievement-gold-orbit achievement-gold-orbit-alt" />
+              <div className="relative inline-flex rounded-full bg-gradient-to-br from-amber-300 via-yellow-100 to-amber-200 p-2.5 shadow-[0_18px_48px_rgba(245,158,11,0.36),inset_0_1px_2px_rgba(255,255,255,0.8)]">
+                <AgentPhoto
+                  name={agent.name}
+                  photoLink={agent.photoLink}
+                  sizeClassName="h-24 w-24 lg:h-36 lg:w-36"
+                  roundedClassName="rounded-full"
+                />
+                <div className="absolute bottom-0 left-1/2 z-20 -translate-x-1/2 translate-y-1/2">
+                  <RankBadge rank={agent.rank} className="h-14 w-14 lg:h-20 lg:w-20" />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-100 px-3 py-1 text-[0.6rem] font-black uppercase tracking-[0.28em] text-orange-700 shadow-[0_10px_28px_rgba(245,158,11,0.24)] lg:gap-2 lg:px-4 lg:py-1.5 lg:text-[0.65rem]">
-            <CrownIcon className="h-3.5 w-3.5 text-orange-500 lg:h-4 lg:w-4" />
+          <p className="inline-flex items-center gap-1.5 rounded-full border-2 border-amber-400/70 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-400 px-3 py-1 text-[0.6rem] font-black uppercase tracking-[0.28em] text-amber-950 shadow-[0_12px_32px_rgba(245,158,11,0.38),inset_0_1px_0_rgba(255,255,255,0.55)] lg:gap-2 lg:px-4 lg:py-1.5 lg:text-[0.65rem]">
+            <CrownIcon className="h-3.5 w-3.5 text-amber-900 lg:h-4 lg:w-4" />
             Champion
           </p>
-          <h3 className="mt-2 break-words text-xl font-black tracking-tight text-blue-950 drop-shadow-[0_10px_22px_rgba(15,23,42,0.12)] lg:mt-3 lg:text-3xl xl:text-[2.7rem]">
+          <h3 className="mt-2 break-words text-xl font-black tracking-tight text-blue-950 drop-shadow-[0_10px_28px_rgba(15,23,42,0.16)] lg:mt-3 lg:text-3xl xl:text-[2.7rem]">
             {agent.name}
           </h3>
           {agent.teamName ? (
-            <p className="mt-0.5 break-words text-xs font-black uppercase tracking-widest text-blue-600 lg:text-sm">
+            <p className="mt-0.5 break-words text-xs font-black uppercase tracking-widest text-amber-800 lg:text-sm">
               {agent.teamName}
             </p>
           ) : null}
@@ -276,6 +282,18 @@ function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
   );
 }
 
+function getCardShineClass(rank: number): string {
+  if (rank === 2) return "achievement-silver-shine";
+  if (rank === 3) return "achievement-bronze-shine";
+  return "achievement-card-mini-shine";
+}
+
+function getCardAnimClass(rank: number): string {
+  if (rank === 2) return " achievement-silver-card";
+  if (rank === 3) return " achievement-bronze-card";
+  return "";
+}
+
 function AgentCard({
   agent,
   compact = false,
@@ -289,11 +307,10 @@ function AgentCard({
 
   return (
     <article
-      className={`group relative h-full overflow-hidden rounded-2xl border p-4 ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_62px_rgba(15,23,42,0.14)] ${cardChrome}`}
+      className={`group relative h-full overflow-hidden rounded-2xl border p-4 ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_62px_rgba(15,23,42,0.14)]${getCardAnimClass(agent.rank)} ${cardChrome}`}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.14),_transparent_34%)] opacity-0 transition duration-300 group-hover:opacity-100" />
-      <div className="achievement-card-mini-shine" />
-      {isTopRank ? <SparkleIcon className="achievement-sparkle absolute right-4 top-3 h-4 w-4 text-amber-400/80" /> : null}
+      <div className={getCardShineClass(agent.rank)} />
       <div className="relative flex flex-row items-start gap-3 lg:gap-4">
         <div className="relative w-fit shrink-0">
           <div className={isTopRank ? `rounded-full ${photoFrameChrome} p-1.5` : ""}>
