@@ -117,18 +117,6 @@ function AgentPhoto({
   );
 }
 
-function SparkleIcon({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} style={style} fill="none">
-      <path
-        d="M12 3.5 13.8 9l5.7 1.8-5.7 1.8L12 18.5l-1.8-5.9-5.7-1.8L10.2 9 12 3.5Z"
-        fill="currentColor"
-      />
-      <path d="m18.5 15 .6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6.6-1.9Z" fill="currentColor" />
-    </svg>
-  );
-}
-
 function CrownIcon({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
@@ -214,7 +202,7 @@ function StatPill({
   );
 }
 
-function HeroCard({ agent, campaign }: { agent: Agent; campaign: string }) {
+function HeroCard({ agent }: { agent: Agent }) {
   return (
     <article className="achievement-hero-card achievement-gold-aura relative overflow-hidden rounded-[1.65rem] border-2 border-amber-400/90 bg-[linear-gradient(115deg,_rgba(255,243,196,0.99)_0%,_rgba(255,255,255,0.97)_36%,_rgba(255,244,202,0.98)_66%,_rgba(255,232,150,0.95)_100%)] p-5 ring-1 ring-amber-300/80 backdrop-blur transition duration-300 hover:-translate-y-0.5 sm:p-7">
       <div className="achievement-card-shine" />
@@ -302,49 +290,83 @@ function AgentCard({
   compact?: boolean;
 }) {
   const isTopRank = agent.rank <= 3;
+  const isUpperPodium = agent.rank === 2 || agent.rank === 3;
+  const isMidPodium = agent.rank === 4 || agent.rank === 5;
   const cardChrome = getAgentCardChrome(agent.rank);
   const photoFrameChrome = getPhotoFrameChrome(agent.rank);
+  const photoSizeClassName = isUpperPodium
+    ? "h-[4.75rem] w-[4.75rem] lg:h-[7.25rem] lg:w-[7.25rem]"
+    : "h-16 w-16 lg:h-[6.25rem] lg:w-[6.25rem]";
+  const badgeSizeClassName = isUpperPodium
+    ? "h-[2.75rem] w-[2.75rem] lg:h-[3.75rem] lg:w-[3.75rem]"
+    : "h-[2.35rem] w-[2.35rem] lg:h-[3rem] lg:w-[3rem]";
+  const nameClassName = isUpperPodium
+    ? "break-words text-xl font-black tracking-tight text-blue-950 lg:text-2xl"
+    : isMidPodium
+      ? "break-words text-lg font-black tracking-tight text-blue-950 lg:text-xl"
+      : "break-words text-base font-black tracking-tight text-blue-950 lg:text-xl";
+  const teamClassName = isUpperPodium
+    ? "break-words text-[0.8rem] font-black uppercase tracking-widest text-blue-600 lg:text-[0.9rem]"
+    : isMidPodium
+      ? "break-words text-[0.72rem] font-black uppercase tracking-widest text-blue-600 lg:text-[0.8rem]"
+      : "break-words text-[0.65rem] font-black uppercase tracking-widest text-blue-600 lg:text-[0.7rem]";
+  const metricBoxClassName = isUpperPodium
+    ? "rounded-xl bg-gradient-to-br from-amber-50 to-white px-2 py-1.5 shadow-sm ring-1 ring-amber-200 lg:px-2.5 lg:py-2"
+    : "rounded-lg bg-gradient-to-br from-amber-50 to-white px-1.5 py-1 shadow-sm ring-1 ring-amber-200 lg:px-2 lg:py-1.5";
+  const admissionBoxClassName = isUpperPodium
+    ? "rounded-xl bg-slate-50 px-2 py-1.5 ring-1 ring-slate-200 lg:px-2.5 lg:py-2"
+    : "rounded-lg bg-slate-50 px-1.5 py-1 ring-1 ring-slate-200 lg:px-2 lg:py-1.5";
+  const statsGridClassName = isUpperPodium
+    ? "grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-2 lg:w-[8.25rem]"
+    : "grid grid-cols-2 gap-1.5 lg:grid-cols-1 lg:gap-1.5 lg:w-[7.25rem]";
+  const badgePositionClassName = isMidPodium
+    ? "top-1/2 -left-4 -translate-y-1/2 lg:-left-5"
+    : isUpperPodium
+      ? "-bottom-1 -left-1"
+      : "bottom-0 left-0";
 
   return (
     <article
-      className={`group relative h-full overflow-hidden rounded-2xl border p-4 ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_62px_rgba(15,23,42,0.14)]${getCardAnimClass(agent.rank)} ${cardChrome}`}
+      className={`group relative h-full overflow-hidden rounded-2xl border p-4 ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_62px_rgba(15,23,42,0.14)]${getCardAnimClass(agent.rank)} ${cardChrome} ${compact ? "lg:p-4" : "lg:p-5"}`}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.14),_transparent_34%)] opacity-0 transition duration-300 group-hover:opacity-100" />
       <div className={getCardShineClass(agent.rank)} />
-      <div className="relative flex flex-row items-start gap-3 lg:gap-4">
-        <div className="relative w-fit shrink-0">
-          <div className={isTopRank ? `rounded-full ${photoFrameChrome} p-1.5` : ""}>
+      <div className={`relative flex h-full flex-col gap-4 ${compact ? "lg:gap-4" : "lg:gap-5"} lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-6`}>
+        <div className="relative w-fit shrink-0 justify-self-start">
+          <div className={isTopRank ? `rounded-full ${photoFrameChrome} ${isUpperPodium ? "p-2" : "p-1.5"}` : ""}>
             <AgentPhoto
               name={agent.name}
               photoLink={agent.photoLink}
-              sizeClassName="h-16 w-16 lg:h-24 lg:w-24"
+              sizeClassName={photoSizeClassName}
               roundedClassName="rounded-full"
             />
           </div>
-          <div className="absolute bottom-0 left-0 z-20">
-            <RankBadge rank={agent.rank} className="h-9 w-9 lg:h-12 lg:w-12" />
+          <div className={`absolute z-20 ${badgePositionClassName}`}>
+            <RankBadge rank={agent.rank} className={badgeSizeClassName} />
           </div>
         </div>
 
-        <div className="min-w-0 flex-1 pt-1">
-          <h3 className="break-words text-sm font-black tracking-tight text-blue-950 lg:text-lg">
-            {agent.name}
-          </h3>
-          {agent.teamName ? (
-            <p className="break-words text-[0.6rem] font-black uppercase tracking-widest text-blue-600 lg:text-[0.65rem]">
-              {agent.teamName}
-            </p>
-          ) : null}
+        <div className="min-w-0 pt-1 lg:pt-0">
+          <div className="max-w-full">
+            <h3 className={nameClassName}>
+              {agent.name}
+            </h3>
+            {agent.teamName ? (
+              <p className={teamClassName}>
+                {agent.teamName}
+              </p>
+            ) : null}
+          </div>
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-1.5 pt-1">
-          <div className="rounded-lg bg-gradient-to-br from-amber-50 to-white px-2.5 py-1.5 shadow-sm ring-1 ring-amber-200 lg:px-3 lg:py-2">
-            <p className="text-[0.55rem] font-bold uppercase tracking-widest text-amber-600">WT</p>
-            <p className="text-sm font-black leading-tight text-amber-700 lg:text-base">{formatNumber(agent.metricValue)}</p>
+        <div className={`${statsGridClassName} lg:justify-self-end`}>
+          <div className={`${metricBoxClassName} flex w-full items-center justify-between gap-3`}>
+            <p className={`${isUpperPodium ? "text-[0.8rem] lg:text-[0.85rem]" : "text-[0.7rem] lg:text-[0.75rem]"} flex-1 font-bold uppercase tracking-widest text-amber-600`}>WT</p>
+            <p className={`${isUpperPodium ? "text-xl lg:text-2xl" : "text-lg lg:text-xl"} shrink-0 font-black leading-tight text-amber-700`}>{formatNumber(agent.metricValue)}</p>
           </div>
-          <div className="rounded-lg bg-slate-50 px-2.5 py-1.5 ring-1 ring-slate-200 lg:px-3 lg:py-2">
-            <p className="text-[0.55rem] font-bold uppercase tracking-widest text-slate-500">Adm</p>
-            <p className="text-sm font-black leading-tight text-slate-700 lg:text-base">{formatNumber(agent.admission)}</p>
+          <div className={`${admissionBoxClassName} flex w-full items-center justify-between gap-3`}>
+            <p className={`${isUpperPodium ? "text-[0.8rem] lg:text-[0.85rem]" : "text-[0.7rem] lg:text-[0.75rem]"} flex-1 font-bold uppercase tracking-widest text-slate-500`}>Adm</p>
+            <p className={`${isUpperPodium ? "text-xl lg:text-2xl" : "text-lg lg:text-xl"} shrink-0 font-black leading-tight text-slate-700`}>{formatNumber(agent.admission)}</p>
           </div>
         </div>
       </div>
@@ -479,7 +501,7 @@ export function WalkinTurnedMtdBoard({
 
         <main className="flex flex-1 flex-col gap-5 pb-4">
           {activeCampaign?.agents[0] ? (
-            <HeroCard agent={activeCampaign.agents[0]} campaign={activeCampaign.campaign} />
+            <HeroCard agent={activeCampaign.agents[0]} />
           ) : (
             <EmptyState message="No walkin turned rows were returned from the Walkin MTD sheet." />
           )}
